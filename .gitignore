@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IntelliJ / PyCharm
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf/
+out/
+
+### Mac OS ###
+.DS_Store
