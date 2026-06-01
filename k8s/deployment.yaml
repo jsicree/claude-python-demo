@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claude-python-demo
+  namespace: default
+  labels:
+    app: claude-python-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: claude-python-demo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0          # zero-downtime rollouts
+  template:
+    metadata:
+      labels:
+        app: claude-python-demo
+    spec:
+      # Spread pods across nodes for HA
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: claude-python-demo
+      containers:
+        - name: claude-python-demo
+          # Replace with your ECR image URI:
+          #   <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/claude-python-demo:latest
+          image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/claude-python-demo:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /hello
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /hello
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault

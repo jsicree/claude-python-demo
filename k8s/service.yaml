@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: claude-python-demo
+  namespace: default
+  annotations:
+    # Use the AWS Load Balancer Controller (NLB, internet-facing, IP mode)
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    # Optional: enable cross-zone load balancing
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # Optional: tag the NLB for cost allocation
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "project=claude-python-demo,env=production"
+spec:
+  selector:
+    app: claude-python-demo
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
